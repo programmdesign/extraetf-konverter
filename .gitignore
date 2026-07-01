@@ -1,0 +1,34 @@
+# ============================================================================
+#  NEVER publish account data. Only the tool + docs belong in this repo.
+# ============================================================================
+
+# CapTrader / Interactive-Brokers exports (input data)
+Captrader/
+CapTrader/
+captrader/
+ExtraETF/
+extraetf/
+Bestand/
+bestand/
+
+# Generated import + helper files
+extraetf-import.csv
+sample-import.csv
+kongsberg-fix.csv
+
+# Any CSV / PDF / statement anywhere = potential account data
+*.csv
+*.pdf
+*.xlsx
+*.xls
+
+# Browser-automation artifacts (may contain account screenshots/exports)
+.playwright-mcp/
+
+# OS / editor / misc
+.DS_Store
+Thumbs.db
+*.log
+tmp/
+.vscode/
+.idea/
