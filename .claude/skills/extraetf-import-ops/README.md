@@ -13,3 +13,8 @@ click sequences and gotchas are written down instead of rediscovered each time.
 - Nothing account-specific is stored here (depot IDs are generalised); it's safe in a public repo.
 
 Not a runtime dependency of the converter — the converter (`captrader-to-extraetf.html`) works on its own.
+
+> ⚠️ **Not official / use at your own risk.** This skill is not affiliated with, provided by, or endorsed
+> by ExtraETF, CapTrader, or Interactive Brokers. ExtraETF is a live web app whose UI can change at any
+> time — treat the selectors, IDs and flows in `SKILL.md` as **point-in-time hints** (verify with a fresh
+> snapshot before relying on them), and always confirm balances/positions after any change.

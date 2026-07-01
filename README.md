@@ -5,6 +5,11 @@ Ein einzelnes, abhängigkeitsfreies HTML-Tool, das **CapTrader / Interactive-Bro
 
 > 🔒 **Datenschutz:** Läuft vollständig lokal im Browser (HTML/JS, keine Abhängigkeiten, kein Server,
 > keine Netzwerkaufrufe). Es werden keinerlei Daten hochgeladen.
+>
+> ⚠️ **Kein offizielles Tool:** Dieses Projekt – der Konverter **und** der Claude-Code-Skill
+> (`.claude/skills/extraetf-import-ops/`) – steht in **keiner Verbindung** zu ExtraETF, CapTrader oder
+> Interactive Brokers und wird von diesen weder bereitgestellt noch unterstützt oder geprüft. Nutzung
+> **ohne Gewähr und auf eigenes Risiko** – die erzeugten Importe und Buchungen bitte selbst kontrollieren.
 
 ## Was es kann
 
