@@ -31,6 +31,27 @@ Verlässlicher ist der manuelle Export als Interactive-Brokers-*Flex-Query*-CSV,
 
 Im CapTrader-/IB-Kundenportal unter Berichte → Flex Queries zwei *Activity Flex Queries* anlegen – eine für **Trades**, eine für **Cash** (Abschnitt *Trades* bzw. *Bartransaktionen*). Beide Queries werden identisch konfiguriert – **bis auf die Wechselkurse**.
 
+**Felder (Spalten)** – beim Anlegen der Query je Abschnitt mindestens diese Felder auswählen:
+
+| Feld | Trade-Query | Cash-Query |
+| --- | :---: | :---: |
+| `CurrencyPrimary` | ✓ | ✓ |
+| `FXRateToBase` | ✓ | ✓ |
+| `AssetClass` | ✓ | |
+| `Symbol` | ✓ | |
+| `Description` | ✓ | ✓ |
+| `ISIN` | ✓ | |
+| `ListingExchange` | ✓ | |
+| `TradeDate` | ✓ | |
+| `Quantity` | ✓ | |
+| `TradePrice` | ✓ | |
+| `Taxes` | ✓ | |
+| `IBCommission` | ✓ | |
+| `Buy/Sell` | ✓ | |
+| `Date/Time` | | ✓ |
+| `Amount` | | ✓ |
+| `Type` | | ✓ |
+
 **Zustellungskonfiguration**
 
 | Einstellung | Wert |
@@ -49,9 +70,9 @@ Im CapTrader-/IB-Kundenportal unter Berichte → Flex Queries zwei *Activity Fle
 | Zeitformat | `HH:mm:ss` |
 | Datum/Uhrzeit-Trennzeichen | `' '` (Leerzeichen) |
 | Include Offsetting Trade/Cancel Pairs | Nein |
+| **Wechselkurse miteinbeziehen** | Trades → Nein · Cash → Ja |
 | Prüfpfadfelder einbeziehen | Nein |
 | Aufschlüsselung nach Tagen | Nein |
-| **Wechselkurse miteinbeziehen** | Trades → Nein · Cash → Ja |
 
 Übrige Optionen (Modelle, Gewinn und Verlust, Konto-Pseudonym) bleiben auf Standard.
 
