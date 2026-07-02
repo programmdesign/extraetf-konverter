@@ -33,8 +33,8 @@ Verlässlicher ist der manuelle Export als *Flex-Query*-CSV, dessen Format aber 
 ### Flex Queries in CapTrader einrichten
 
 Im CapTrader-/IB-Kundenportal unter `Berichte → Flex Queries` zwei Flex-Queries z. B. mit folgenden Namen anlegen:
-  - `ExtraETF`: Abschnitt 'Trades' aktivieren
-  - `ExtraETF (Cash)`: Abschnitt 'Bartransaktionen' aktivieren
+  - `ExtraETF`: Abschnitt **'Trades'** aktivieren
+  - `ExtraETF (Cash)`: Abschnitt **'Bartransaktionen'** aktivieren
 
 Beide Queries werden identisch konfiguriert – **bis auf die Wechselkurse**.
 
@@ -111,7 +111,7 @@ Erfasse sie auf ExtraETF über `Neue Aktivität → Cash`. Aktiviere beim betrof
 | Gebühren | Cash-Buchung |
 | Quellensteuer auf Zinsen | Cash-Buchung |
 | Anleihe-Stückzinsen | Cash-Buchung |
-| Anleihe-Kupons | [`Dividende` auf die Anleihe](#bekannte-extraetf-besonderheiten) |
+| Anleihe-Kupons | [`Dividende`](#bekannte-extraetf-besonderheiten) |
 
 ### Verrechnungskonto
 
@@ -135,10 +135,10 @@ Der Agent arbeitet nur am angegebenen Depot, fragt vor jeder Buchung nach (sofer
 
 Der Konverter erzeugt eine korrekte CSV; die folgenden Punkte liegen an ExtraETF:
 
-- **Typ:** erkennt ExtraETF selbst anhand der ISIN; die CSV-Spalte ist nur ein Hinweis.
-- **Fremdwährungs-Dividenden:** ExtraETF ignoriert den Wechselkurs bei Dividenden und bucht Preis/Steuern als EUR (`318 HKD` → `318 €`); Käufe und Verkäufe werden korrekt umgerechnet. Workaround: solche Dividenden in EUR buchen (`Währung=EUR`).
-- **Split mit ISIN-Wechsel:** ExtraETF fügt einen nicht löschbaren „Split" ein und bewertet die neue Stückzahl mit dem Vor-Split-Kurs (Position überhöht). Manuelle Käufe/Einbuchungen werden nicht gespeichert – Position nur per CSV-Import (`Einbuchung`) anlegen.
-- **Anleihe-Kupons:** ExtraETF hat keinen `Kupon`-Typ; als `Dividende` auf die jeweilige Anleihe buchen (Betrag in „Dividendensumme (vor Steuern)", die Position bleibt unverändert).
+- Der **Wertpapier-`Typ`** wird automatisch anhand der ISIN erkannt. Die CSV-Spalte ist nur ein Hinweis.
+- Der **Wechselkurs bei Dividenden** wird ignoriert und der Preis/Steuern in EUR gebucht (*318 HKD → 318 €*). Käufe und Verkäufe werden hingegen korrekt umgerechnet. Workaround: Fremdwährungs-Dividenden in EUR buchen (`Währung=EUR`).
+- Es gibt keinen **`Kupon`-Typ**. Anleihe-Kupons müssen daher z.B. als `Dividende` auf die jeweilige Anleihe gebucht werden (Betrag in „Dividendensumme (vor Steuern)", die Position bleibt unverändert).
+- Nach einem **Split mit ISIN-Wechsel** kann eine Position mit dem veralteten Vor-Split-Kurs bewertet werden. Ursache: Dem Investment ist durch die Kapitalmaßnahme ggf. kein Börsenplatz zugeordnet, daher wird kein aktueller Kurs gezogen. Lösung: Beim Investment über die drei Punkte (⋮) → „Bearbeiten" einen **Börsenplatz** wählen (z. B. Stuttgart) — danach wird der aktuelle Kurs verwendet.
 
 ## Lizenz
 

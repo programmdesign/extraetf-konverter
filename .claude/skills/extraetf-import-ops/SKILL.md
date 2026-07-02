@@ -73,10 +73,12 @@ settings · find a row in the virtualized list · reconcile the Verrechnungskont
   native `Preis`/`Steuern` **as EUR** (e.g. `318 HKD` → `318 €`, ~9× high; USD≈EUR barely shows). Kauf/Verkauf
   convert fine — only Dividende is broken. Workaround: pre-convert to EUR (`Währung=EUR`). *[verified: opened
   the stored transaction — currency was EUR, no Wechselkurs.]*
-- **Split with ISIN change** (e.g. 5:1, new ISIN): un-deletable auto-"Split" + post-split quantity valued at the
-  **pre-split price**; and **manual Kauf/Einbuchung on such a security do not persist** (dialog closes, no txn,
-  cash unchanged; TYP locked to "Kauf"). Create/restore the holding via **CSV import** of an `Einbuchung` row.
-  *[glitch verified on-screen; "manual booking doesn't persist" inferred from cash staying unchanged after two attempts.]*
+- **Split with ISIN change** (e.g. 5:1, new ISIN): position shown at the **pre-split price** (inflated) because the
+  corporate action **leaves the investment with no Börsenplatz** → no current quote is pulled (the price-freshness
+  dot is **red** with a pre-split timestamp; hover shows source + time). **Fix the price: edit the investment
+  (⋮ → „Bearbeiten") and set a Börsenplatz** (e.g. Stuttgart). Quantity is separate: an auto-"Split" is un-deletable
+  and manual Kauf/Einbuchung don't persist (TYP locked to "Kauf") → (re)create the holding via **CSV import** of an
+  `Einbuchung` row. *[Börsenplatz price fix reported by user 2026-07; glitch + persistence previously verified on-screen.]*
 
 ## The converter (`captrader-to-extraetf.html`)
 Client-side, no deps: `captrader-to-extraetf.html` + `styles.css` + `converter.js` (IIFE module; rendering uses

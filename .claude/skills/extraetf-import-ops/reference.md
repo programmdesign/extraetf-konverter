@@ -127,11 +127,14 @@ convert correctly, so it is specific to `Dividende`. Impact scales with the rate
 USD ≈ EUR (barely visible), GBP slightly under. Workaround: pre-convert those dividends to EUR in the CSV
 (`Preis`/`Steuern` in EUR, `Währung=EUR`), or file the bug (a 2-3 row `Dividende` CSV in a foreign currency reproduces it).
 
-### Split with ISIN change *(glitch verified; persistence inferred)*
+### Split with ISIN change *(price fix reported by user; glitch/persistence verified)*
 Example: Kongsberg `NO0003043309` → `NO0013536151` (5:1). ExtraETF auto-inserts an **un-deletable "Split 1:5"**
-on the new ISIN and values the post-split quantity at the **pre-split price** (position inflated). Attempts to
-model it manually **did not persist**: a Kauf on either ISIN closed the dialog but created no transaction and left
-the Verrechnungskonto unchanged (inferred: rejected by the corp-action engine); the booking dialog **locks TYP to
-"Kauf"** for the new ISIN, so Einbuchung isn't selectable. The 125-share holding only exists because it was created
-via **CSV import** of an `Einbuchung` row — that is how to (re)create/restore such a position. ExtraETF also
-auto-reassigns pre-split dividends to the surviving ISIN.
+on the new ISIN and initially values the post-split quantity at the **pre-split price** (position inflated).
+**Root cause of the inflated price: the corporate action leaves the investment with no Börsenplatz**, so ExtraETF
+pulls no current quote — the price-freshness dot next to the price is **red** with a pre-split timestamp (hover
+shows source + Stand). **Fix: open the investment → three-dots (⋮) → „Bearbeiten" and set a Börsenplatz** (e.g.
+Stuttgart); the current post-split price is then used and the valuation corrects.
+Quantity is a separate problem: modelling it manually **did not persist** (a Kauf on either ISIN closed the dialog
+but created no transaction and left the Verrechnungskonto unchanged; TYP is **locked to "Kauf"**, so Einbuchung
+isn't selectable), so (re)create the holding via **CSV import** of an `Einbuchung` row. ExtraETF also auto-reassigns
+pre-split dividends to the surviving ISIN.
