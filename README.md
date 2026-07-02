@@ -32,16 +32,16 @@ Verlässlicher ist der manuelle Export als *Flex-Query*-CSV, dessen Format aber 
 
 ### Flex Queries in CapTrader einrichten
 
-Im CapTrader-/IB-Kundenportal unter `Berichte → Flex Queries` zwei *Flex-Queries* anlegen:
-  - **Trades:** Abschnitt 'Trades'
-  - **Cash:** Abschnitt 'Bartransaktionen'
+Im CapTrader-/IB-Kundenportal unter `Berichte → Flex Queries` zwei Flex-Queries z. B. mit folgenden Namen anlegen:
+  - *ExtraETF*: Abschnitt 'Trades' aktivieren
+  - *ExtraETF (Cash)*: Abschnitt 'Bartransaktionen' aktivieren
 
 Beide Queries werden identisch konfiguriert – **bis auf die Wechselkurse**.
 
 **Felder (Spalten)** – beim Anlegen der Query je Abschnitt mindestens diese Felder auswählen:
 
 | Feld | Trade-Query | Cash-Query |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | `CurrencyPrimary` | ✓ | ✓ |
 | `FXRateToBase` | ✓ | ✓ |
 | `AssetClass` | ✓ | |
@@ -62,7 +62,7 @@ Beide Queries werden identisch konfiguriert – **bis auf die Wechselkurse**.
 **Zustellungskonfiguration**
 
 | Einstellung | Wert |
-| --- | --- |
+| :--- | :--- |
 | Format | CSV |
 | Überschrift und Trailer-Daten miteinbeziehen | Nein |
 | Spaltenüberschriften miteinbeziehen | Ja |
@@ -72,7 +72,7 @@ Beide Queries werden identisch konfiguriert – **bis auf die Wechselkurse**.
 **Allgemeine Konfiguration**
 
 | Einstellung | Wert |
-| --- | --- |
+| :--- | :--- |
 | Datumsformat | `dd/MM/yyyy` |
 | Zeitformat | `HH:mm:ss` |
 | Datum/Uhrzeit-Trennzeichen | `' '` (Leerzeichen) |
@@ -105,13 +105,13 @@ ExtraETF importiert nur Wertpapier-Transaktionen. Cash-Bewegungen müssen manuel
 Erfasse sie auf ExtraETF über `Neue Aktivität → Cash`. Aktiviere beim betroffenen Verrechnungskonto „Berücksichtigen", damit Cash zum Gesamtvermögen zählt.
 
 | Cash-Bewegung | Erfassung |
-| --- | --- |
+| :--- | :--- |
 | Ein-/Auszahlungen | Cash-Buchung |
 | Broker-Zinsen | Cash-Buchung |
 | Gebühren | Cash-Buchung |
 | Quellensteuer auf Zinsen | Cash-Buchung |
 | Anleihe-Stückzinsen | Cash-Buchung |
-| Anleihe-Kupons | `Dividende` auf die Anleihe (kein `Kupon`-Typ; Betrag in „Dividendensumme (vor Steuern)", Position bleibt unverändert) |
+| Anleihe-Kupons | [`Dividende` auf die Anleihe](#bekannte-extraetf-besonderheiten) |
 
 ### Verrechnungskonto
 
@@ -122,7 +122,7 @@ Kontostand auf den CapTrader-Endbarsaldo abgleichen (dokumentierte Zahlungsströ
 > [!CAUTION]
 > Der Agent bucht in deinem echten ExtraETF-Konto. Nutzung auf eigenes Risiko – Ergebnisse selbst prüfen.
 
-Nachbuchungen lassen sich mit einem Claude-Code-Agenten und dem Skill [`extraetf-import-ops`](.claude/skills/extraetf-import-ops/) automatisieren: Das Skill kennt die UI-Abläufe der ExtraETF-Web-App, der Agent steuert die Oberfläche per Browser-Automation und bucht, was der CSV-Import nicht abdeckt.
+Nachbuchungen lassen sich mit einem Claude-Code-Agenten und dem Skill [`extraetf-import-ops`](.claude/skills/extraetf-import-ops/) automatisieren: Das Skill kennt die UI-Abläufe der ExtraETF-Web-App, der Agent steuert den Browser und bucht, was der CSV-Import nicht abdeckt.
 
 1. Der Konverter listet unter „Cash / Kontobuchungen" alle nicht-importierbaren Buchungen samt Ziel-Endbarsaldo.
 2. Du meldest dich selbst bei app.extraetf.com an – der Agent hält keine Zugangsdaten.
@@ -138,6 +138,7 @@ Der Konverter erzeugt eine korrekte CSV; die folgenden Punkte liegen an ExtraETF
 - **Typ:** erkennt ExtraETF selbst anhand der ISIN; die CSV-Spalte ist nur ein Hinweis.
 - **Fremdwährungs-Dividenden:** ExtraETF ignoriert den Wechselkurs bei Dividenden und bucht Preis/Steuern als EUR (`318 HKD` → `318 €`); Käufe und Verkäufe werden korrekt umgerechnet. Workaround: solche Dividenden in EUR buchen (`Währung=EUR`).
 - **Split mit ISIN-Wechsel:** ExtraETF fügt einen nicht löschbaren „Split" ein und bewertet die neue Stückzahl mit dem Vor-Split-Kurs (Position überhöht). Manuelle Käufe/Einbuchungen werden nicht gespeichert – Position nur per CSV-Import (`Einbuchung`) anlegen.
+- **Anleihe-Kupons:** ExtraETF hat keinen `Kupon`-Typ; als `Dividende` auf die jeweilige Anleihe buchen (Betrag in „Dividendensumme (vor Steuern)", die Position bleibt unverändert).
 
 ## Lizenz
 
