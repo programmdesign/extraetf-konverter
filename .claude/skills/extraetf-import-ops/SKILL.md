@@ -4,7 +4,7 @@ description: >-
   Operate the ExtraETF web app (app.extraetf.com) to fix/test/adjust CapTrader→ExtraETF imports and
   book, edit or delete transactions. Use for manual cash or securities bookings, deletions, CSV imports,
   reconciling a portfolio's Verrechnungskonto to a target balance, diagnosing why an import looks wrong
-  (currency/split/price), or working on captrader-to-extraetf.html. Leads with durable technique;
+  (currency/split/price), or working on extraetf-konverter.html. Leads with durable technique;
   exact selectors, field IDs and step-by-step flows live in reference.md.
 ---
 
@@ -80,8 +80,9 @@ settings · find a row in the virtualized list · reconcile the Verrechnungskont
   and manual Kauf/Einbuchung don't persist (TYP locked to "Kauf") → (re)create the holding via **CSV import** of an
   `Einbuchung` row. *[Börsenplatz price fix reported by user 2026-07; glitch + persistence previously verified on-screen.]*
 
-## The converter (`captrader-to-extraetf.html`)
-Client-side, no deps: `captrader-to-extraetf.html` + `styles.css` + `converter.js` (IIFE module; rendering uses
+## The converter (`extraetf-konverter.html`)
+Client-side, no deps: `extraetf-konverter.html` + `styles.css` + `js/` (IIFE modules: `js/core.js` shared helpers +
+converter registry, `js/converters/captrader.js`, `js/converters/genobroker.js`, `js/app.js` UI; rendering uses
 `<template>` clone-and-fill, no HTML strings). **Don't change the conversion logic without re-testing against
 the Bestand**: `python3 -m http.server` (file:// is blocked), upload the real trade + cash + Bestand CSVs, confirm
 positions reconcile. CSV spec: `Datum;ISIN;Name;Typ;Transaktion;Preis;Anzahl;Gebühren;Steuern;Währung;Wechselkurs`

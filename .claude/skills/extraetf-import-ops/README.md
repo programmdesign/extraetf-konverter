@@ -12,7 +12,7 @@ click sequences and gotchas are written down instead of rediscovered each time.
   matches the description (manual ExtraETF booking/fixing, converter work, import diagnosis).
 - Nothing account-specific is stored here (depot IDs are generalised); it's safe in a public repo.
 
-Not a runtime dependency of the converter — the converter (`captrader-to-extraetf.html`) works on its own.
+Not a runtime dependency of the converter — the converter (`extraetf-konverter.html`) works on its own.
 
 > ⚠️ **Not official / use at your own risk.** This skill is not affiliated with, provided by, or endorsed
 > by ExtraETF, CapTrader, or Interactive Brokers. ExtraETF is a live web app whose UI can change at any

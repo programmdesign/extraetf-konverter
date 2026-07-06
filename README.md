@@ -1,7 +1,10 @@
 
-# CapTrader → ExtraETF Konverter
+# ExtraETF Konverter
 
-Tool zur Konvertierung von CapTrader-Transaktionen (Cash, Trades) in ExtraETF-Import-CSVs.
+Tool zur Konvertierung von Broker-Depot-Exporten in ExtraETF-Import-CSVs. Unterstützte Broker (werden je Datei automatisch erkannt, auch gemischt hochladbar):
+
+- **CapTrader** (Interactive Brokers): Flex-Query-Exporte *Trades* + *Cash* · optional *Bestand* für den Positionsabgleich
+- **GenoBroker** (GENO Broker GmbH / Volks- und Raiffeisenbanken): *Depotumsätze*-CSVs · optional *Depotbestand* für den Positionsabgleich
 
 ![Der Konverter im Browser](docs/screenshot.png)
 
@@ -15,11 +18,13 @@ Tool zur Konvertierung von CapTrader-Transaktionen (Cash, Trades) in ExtraETF-Im
 
 ## Warum dieses Tool?
 
-ExtraETF bietet zwar einen Interactive-Brokers-Import über WealthAPI an (auch für CapTrader), doch die Einbindung ist fehleranfällig und die Daten unvollständig – z. B. werden ISINs abgeschnitten.
+**CapTrader:** ExtraETF bietet zwar einen Interactive-Brokers-Import über WealthAPI an (auch für CapTrader), doch die Einbindung ist fehleranfällig und die Daten unvollständig – z. B. werden ISINs abgeschnitten. Verlässlicher ist der manuelle Export als *Flex-Query*-CSV, dessen Format aber nicht zum ExtraETF-Import passt. Dieses Tool rechnet die Exporte automatisch um (inklusive Anleihen, Fremdwährung, Quellensteuer, Stornos, Corporate Actions), sodass der importierte Depotwert dem CapTrader-Auszug entspricht.
 
-Verlässlicher ist der manuelle Export als *Flex-Query*-CSV, dessen Format aber nicht zum ExtraETF-Import passt. Dieses Tool rechnet die Exporte automatisch um (inklusive Anleihen, Fremdwährung, Quellensteuer, Stornos, Corporate Actions), sodass der importierte Depotwert dem CapTrader-Auszug entspricht.
+**GenoBroker:** Für GenoBroker gibt es gar keine ExtraETF-Anbindung, und die *Depotumsatzanzeige*-CSV passt nicht zum Import-Format: Semikolon-Format mit eigenem Kopfblock, nur WKNs statt ISINs, auf 2 Nachkommastellen gerundete Stückzahlen, gerundete Ausführungskurse (bei Sparplänen zählt der abgebuchte Betrag) und Buchungsarten wie Depotüberträge oder Vorabpauschale, die ExtraETF nicht kennt. Dieses Tool übersetzt all das und gleicht auf Wunsch gegen den *Depotbestand* ab, sodass die importierten Positionen exakt dem Depotauszug entsprechen.
 
 ## Was es kann
+
+### CapTrader
 
 - **Trades** → `Kauf` / `Verkauf` (inkl. Gebühren, Fremdwährung, Wechselkurs)
 - **Anleihen** → Kurs in % des Nominals, Nominalwert als Anzahl
@@ -28,9 +33,24 @@ Verlässlicher ist der manuelle Export als *Flex-Query*-CSV, dessen Format aber 
 - **Fremdwährungen** → Wechselkurs = Einheiten je EUR (= 1 / `FXRateToBase`)
 - **Optionaler Bestandsabgleich:** mit CapTrader-*Bestand* ergänzt der Konverter `Einbuchung` / `Ausbuchung`, sodass die Positionen exakt dem Auszug entsprechen (z. B. bei Corporate Actions).
 
+### GenoBroker
+
+Quelle ist der CSV-Export der **Depotumsatzanzeige** (`Depotumsaetze_<Depot>_<Datum>.csv`, im Online-Depot unter „Depot → Depotumsätze“) – bei Bedarf mehrere Exporte für die volle Historie. Optional zusätzlich der **Depotbestand** (`Depotbestand_….csv`) für den exakten Positionsabgleich.
+
+- **Käufe / Verkäufe** (`TRANSAKTIONSART_KAEUFE` / `…_VERKAEUFE`) → `Kauf` / `Verkauf` inkl. Spesen und Steuern
+- **Sparplan-genau:** als Preis wird `Kurswert ÷ Stück` verwendet (nicht der gerundete Ausführungskurs), damit `Preis × Anzahl` exakt dem abgebuchten Betrag entspricht (z. B. 400,00 €-Sparrate); das funktioniert auch bei älteren Exporten, in denen die Ausführungskurs-Spalte den Abrechnungsbetrag enthält
+- **Überlappende Exporte** werden automatisch dedupliziert (gleiche Auftrags-Nr. = gleiche Buchung) – einfach alle Umsatz-CSVs zusammen hochladen
+- **Depotüberträge** (`TRANSAKTIONSART_AUSLIEFERUNGEN` / `…_EINLIEFERUNGEN`) → `Ausbuchung` / `Einbuchung`
+- **Ausschüttungen** (`ERTRAGSART_AUSSCHUETTUNGEN`) mit Bruttobetrag → `Dividende` (brutto, Steuern zugeordnet)
+- **Vorabpauschale** (Ausschüttungszeile ohne Brutto, nur Steuern – typisch Anfang Januar bei thesaurierenden Fonds) → nicht per CSV importierbar; wird unter „Hinweise“ und „Cash / Kontobuchungen“ zum manuellen Erfassen aufgelistet
+- **Bestandsabgleich:** mit dem *Depotbestand* ergänzt der Konverter `Einbuchung` / `Ausbuchung`, sodass die Positionen exakt dem Auszug entsprechen. Das gleicht auch die **Rundung der Umsatzanzeige** aus: dort sind Stückzahlen auf 2 Nachkommastellen gerundet, der Bestand führt 4 – ohne Abgleich weichen Sparplan-Positionen daher um wenige Tausendstel Stück ab
+
+> [!IMPORTANT]
+> GenoBroker exportiert nur **WKNs**, keine ISINs. Die WKN wird in die ISIN-Spalte geschrieben – nach dem Import prüfen, ob ExtraETF alle Wertpapiere erkannt hat, und die WKN sonst in der CSV durch die ISIN ersetzen.
+
 ## Voraussetzungen
 
-### Flex Queries in CapTrader einrichten
+### CapTrader: Flex Queries einrichten
 
 Im CapTrader-/IB-Kundenportal unter `Berichte → Flex Queries` zwei Flex-Queries z. B. mit folgenden Namen anlegen:
   - `ExtraETF`: Abschnitt **'Trades'** aktivieren
@@ -83,15 +103,24 @@ Beide Queries werden identisch konfiguriert – **bis auf die Wechselkurse**.
 
 Übrige Optionen (Modelle, Gewinn und Verlust, Konto-Pseudonym) bleiben auf Standard.
 
-### Bestand exportieren (optional)
+### CapTrader: Bestand exportieren (optional)
 
 Der *Bestand* für den optionalen Bestandsabgleich wird im Kundenportal aus der Umsatzübersicht (`Berichte → Kontoauszüge → Kontoauszug`) als CSV exportiert.
+
+### GenoBroker: Depotumsätze & Depotbestand exportieren
+
+Beides im GenoBroker-Online-Depot, keine Einrichtung nötig:
+
+- **Depotumsätze** (`Depotumsaetze_<Depot>_<Datum>.csv`): in der *Depotumsatzanzeige* den Zeitraum wählen und als CSV exportieren. Für die **volle Historie seit Depoteröffnung** ggf. mehrere Zeiträume exportieren und alle Dateien zusammen hochladen – Überlappungen sind unkritisch, der Konverter dedupliziert über die Auftrags-Nr.
+- **Depotbestand** (`Depotbestand_<Depot>_<Datum>.csv`, optional, empfohlen): die *Depotbestand*-Ansicht als CSV exportieren. Damit gleicht der Konverter die Positionen exakt ab – wichtig, weil die Umsatzanzeige Stückzahlen auf 2 Nachkommastellen rundet.
 
 ## Schnellstart
 
 1. Dieses Repository herunterladen und ggf. entpacken.
-2. `captrader-to-extraetf.html` im Browser öffnen (Doppelklick genügt – kein Server nötig).
-3. CapTrader-CSVs hineinziehen (Trades + Cash, optional den *Bestand*).
+2. `extraetf-konverter.html` im Browser öffnen (Doppelklick genügt – kein Server nötig).
+3. Die Broker-CSVs hineinziehen – die Bank wird je Datei automatisch erkannt:
+   - **CapTrader:** Trades + Cash, optional den *Bestand*
+   - **GenoBroker:** alle Depotumsätze-Exporte, optional den *Depotbestand*
 4. Vorschau und Hinweise prüfen.
 5. „ExtraETF-Import-CSV herunterladen" → `extraetf-import.csv`.
 6. In ExtraETF unter `Datenimport → CSV importieren` einlesen.
@@ -104,18 +133,21 @@ ExtraETF importiert nur Wertpapier-Transaktionen. Cash-Bewegungen müssen manuel
 
 Erfasse sie auf ExtraETF über `Neue Aktivität → Cash`. Aktiviere beim betroffenen Verrechnungskonto „Berücksichtigen", damit Cash zum Gesamtvermögen zählt.
 
-| Cash-Bewegung | Erfassung |
-| :--- | :--- |
-| Ein-/Auszahlungen | Cash-Buchung |
-| Broker-Zinsen | Cash-Buchung |
-| Gebühren | Cash-Buchung |
-| Quellensteuer auf Zinsen | Cash-Buchung |
-| Anleihe-Stückzinsen | Cash-Buchung |
-| Anleihe-Kupons | [`Dividende`](#bekannte-extraetf-besonderheiten) |
+| Cash-Bewegung | Broker | Erfassung |
+| :--- | :--- | :--- |
+| Ein-/Auszahlungen | CapTrader | Cash-Buchung |
+| Broker-Zinsen | CapTrader | Cash-Buchung |
+| Gebühren | CapTrader | Cash-Buchung |
+| Quellensteuer auf Zinsen | CapTrader | Cash-Buchung |
+| Anleihe-Stückzinsen | CapTrader | Cash-Buchung |
+| Anleihe-Kupons | CapTrader | [`Dividende`](#bekannte-extraetf-besonderheiten) |
+| Vorabpauschale | GenoBroker | Cash-Buchung (Abbuchung der Steuer) |
 
 ### Verrechnungskonto
 
-Kontostand auf den CapTrader-Endbarsaldo abgleichen (dokumentierte Zahlungsströme als Cash-Buchungen, verbleibende FX-/Rundungsdifferenz als eine Ausgleichsbuchung).
+**CapTrader:** Kontostand auf den CapTrader-Endbarsaldo abgleichen (dokumentierte Zahlungsströme als Cash-Buchungen, verbleibende FX-/Rundungsdifferenz als eine Ausgleichsbuchung).
+
+**GenoBroker:** Es gibt kein Broker-Verrechnungskonto – Sparplanraten und Abrechnungsbeträge laufen über das hinterlegte Referenzkonto (Girokonto). In ExtraETF daher entweder die Option „Negative Kontostände ausgleichen" aktiv lassen oder die Abbuchungen als Einzahlungen auf das Verrechnungskonto nachbuchen.
 
 ## Automatisierung (Agent & Skill)
 
@@ -139,6 +171,19 @@ Der Konverter erzeugt eine korrekte CSV; die folgenden Punkte liegen an ExtraETF
 - Der **Wechselkurs bei Dividenden** wird ignoriert und der Preis/Steuern in EUR gebucht (*318 HKD → 318 €*). Käufe und Verkäufe werden hingegen korrekt umgerechnet. Workaround: Fremdwährungs-Dividenden in EUR buchen (`Währung=EUR`).
 - Es gibt keinen **`Kupon`-Typ**. Anleihe-Kupons müssen daher z.B. als `Dividende` auf die jeweilige Anleihe gebucht werden (Betrag in „Dividendensumme (vor Steuern)", die Position bleibt unverändert).
 - Nach einem **Split mit ISIN-Wechsel** kann eine Position mit dem veralteten Vor-Split-Kurs bewertet werden. Ursache: Dem Investment ist durch die Kapitalmaßnahme ggf. kein Börsenplatz zugeordnet, daher wird kein aktueller Kurs gezogen. Lösung: Beim Investment über die drei Punkte (⋮) → „Bearbeiten" einen **Börsenplatz** wählen (z. B. Stuttgart) — danach wird der aktuelle Kurs verwendet.
+
+## Aufbau (neue Bank ergänzen)
+
+Der Code ist in Module je Bank aufgeteilt – alles abhängigkeitsfrei und rein clientseitig:
+
+```
+js/core.js                   Shared: CSV-Parser, Zahlen/Datums-Helfer, ExtraETF-Spec, Registry
+js/converters/captrader.js   CapTrader/IB-Konverter
+js/converters/genobroker.js  GenoBroker-Konverter
+js/app.js                    UI (Upload, Erkennung, Vorschau, Download)
+```
+
+Eine neue Bank ist eine Datei unter `js/converters/`, die `ExtraETF.register({ id, label, kindLabels, detect(text, fileName), convert(files) })` aufruft (Contract-Doku in `js/core.js`) und in `extraetf-konverter.html` als `<script>` eingebunden wird.
 
 ## Lizenz
 

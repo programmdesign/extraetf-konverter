@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CapTrader → ExtraETF Konverter</title>
-<meta name="description" content="Wandelt CapTrader / Interactive-Brokers Flex-Query-Exporte in eine ExtraETF-Import-CSV um. Läuft komplett lokal im Browser.">
+<title>Depot → ExtraETF Konverter (CapTrader, GenoBroker)</title>
+<meta name="description" content="Wandelt Depot-Exporte (CapTrader / Interactive Brokers Flex-Queries, GenoBroker Depotumsätze) in eine ExtraETF-Import-CSV um. Läuft komplett lokal im Browser.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>CapTrader → ExtraETF Konverter</h1>
-    <p class="lede">Wandelt deine CapTrader / Interactive-Brokers <strong>Flex-Query-Exporte</strong> (Trades&nbsp;+&nbsp;Cash) in eine
-      <strong>ExtraETF-Import-CSV</strong> um – inkl. Aktien, ETFs, Anleihen (Kurs&nbsp;in&nbsp;%), Dividenden netto&nbsp;nach&nbsp;Steuern,
-      Fremdwährungen und Stornobuchungen.</p>
+    <h1>Depot → ExtraETF Konverter</h1>
+    <p class="lede">Wandelt Depot-Exporte in eine <strong>ExtraETF-Import-CSV</strong> um – die Bank wird je Datei automatisch erkannt:
+      <strong>CapTrader</strong> / Interactive-Brokers <strong>Flex-Query-Exporte</strong> (Trades&nbsp;+&nbsp;Cash, inkl. Anleihen,
+      Dividenden, Fremdwährungen, Storni) und <strong>GenoBroker</strong>-<strong>Depotumsätze</strong> (Sparpläne, Ausschüttungen,
+      Vorabpauschale).</p>
   </header>
 
   <!-- STEP 1 — upload -->
@@ -24,7 +25,7 @@
       </svg>
       <span class="dz-btn">Dateien auswählen</span>
       <div class="dz-or">oder hierher ziehen</div>
-      <div class="dz-hint">Trades <code>…ExtraETF.csv</code> · Cash <code>…(Cash).csv</code> · optional der <strong>Bestand</strong> <code>U…_JJJJMMTT.csv</code> für den automatischen Positionsabgleich</div>
+      <div class="dz-hint">CapTrader: Trades <code>…ExtraETF.csv</code> · Cash <code>…(Cash).csv</code> · optional der <strong>Bestand</strong> <code>U…_JJJJMMTT.csv</code> für den Positionsabgleich<br>GenoBroker: Depotumsätze <code>Depotumsaetze_….csv</code> · optional der <strong>Depotbestand</strong> <code>Depotbestand_….csv</code> für den Positionsabgleich</div>
       <input id="file" type="file" accept=".csv,text/csv" multiple hidden>
     </div>
     <ul id="fileList" class="filelist" aria-live="polite"></ul>
@@ -71,8 +72,9 @@
     <ol class="steps">
       <li>
         <div class="step-badge">1</div>
-        <h3>Flex-Queries<sup>1</sup> und Bestand auf CapTrader exportieren</h3>
-        <p>Im CapTrader-Portal die Flex-Queries (Trades&nbsp;+&nbsp;Cash) und optional den Bestand als CSV exportieren.</p>
+        <h3>Export bei der Bank herunterladen</h3>
+        <p><strong>CapTrader:</strong> im Portal die Flex-Queries<sup>1</sup> (Trades&nbsp;+&nbsp;Cash) und optional den Bestand als CSV exportieren.<br>
+           <strong>GenoBroker:</strong> unter „Depot&nbsp;→&nbsp;Depotumsätze“ den gewünschten Zeitraum als CSV exportieren.</p>
       </li>
       <li>
         <div class="step-badge">2</div>
@@ -103,6 +105,9 @@
   <template id="t-cash-intro"><p style="margin-top:0">Diese Buchungen lassen sich in ExtraETF <b>nicht per CSV</b> importieren. Erfasse sie bei Bedarf manuell über <b>„Neue Aktivität → Cash“</b> (<a href="https://support.extraetf.com/hc/de/articles/14644488296476" target="_blank" rel="noopener">Anleitung</a>) und aktiviere „Berücksichtigen“, damit Cash zum Gesamtvermögen zählt. <b>Anleihe-Kupons</b> bucht man am besten als <em>Dividende auf die jeweilige Anleihe</em> (ExtraETF hat keinen Kupon-Typ).</p></template>
 </div>
 
-<script src="converter.js"></script>
+<script src="js/core.js"></script>
+<script src="js/converters/captrader.js"></script>
+<script src="js/converters/genobroker.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

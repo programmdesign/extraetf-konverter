@@ -41,8 +41,9 @@ credit, negative debit; adds a Steuern field), **Steuererstattung**, **Dividende
 
 **Fast path — ~2 tool calls/booking (verified 2026-07 over a 28-entry batch):**
 1. **One `browser_evaluate`** (snippet below): fire `+` → wait for `.cdk-overlay-container` → **switch to Cash with a
-   *synthetic* click on the tab _inside the overlay_** (bbox y≈210–330). There are two "Cash" elements — the page's
-   own Cash tab is a no-op, which is why a naive synthetic click appears to "not switch". Then wait for
+   *synthetic* click on the `button` "Cash" _inside the overlay_** (the page's own Cash tab is an `<a>` outside the
+   overlay and a no-op — which is why a naive synthetic click appears to "not switch"; don't match by bbox, the tab's
+   y-position varies by account/viewport). Then wait for
    `#inp_tx_amount` → set TYP (fire the trigger `button`, then the matching `.dropdown-item`) → expand "Mehr
    Optionen" → native-set `#inp_tx_date` (ISO) + `#inp_tx_comment` → clear + focus `#inp_tx_amount`. **Return the
    resolved TYP/date so you can verify before typing** — a wrong TYP silently flips the sign on Abbuchung/Zinsen.
@@ -67,7 +68,8 @@ async () => {
   const DATE='2024-05-30', CMT='Auszahlung', TYP=/^Abbuchung/;   // ← per booking; TYP ∈ /^Gutschrift/ | /^Abbuchung/ | /^Zinsen/
   fire(document.querySelector('app-header button[name="Neue Aktivität"]')||document.querySelector('button[name="Neue Aktivität"]'));
   const ov=await waitFor(()=>document.querySelector('.cdk-overlay-container'));
-  const tab=await waitFor(()=>[...(ov||document).querySelectorAll('a,button,div,span')].filter(e=>e.children.length===0&&(e.textContent||'').trim()==='Cash'&&e.offsetParent).find(e=>{const r=e.getBoundingClientRect();return r.y>210&&r.y<330;}));
+  // Dialog Cash tab = a BUTTON inside the overlay (the page's own Cash tab is an <a> outside it; position varies — was y≈250 in 2026-07, y≈362 on another account — so scope by overlay+tag, not bbox).
+  const tab=await waitFor(()=>[...(ov||document).querySelectorAll('button')].find(e=>(e.textContent||'').trim()==='Cash'&&e.offsetParent&&ov&&ov.contains(e)));
   if(!tab)return{err:'no dialog cash tab'}; fire(tab);
   const amt=await waitFor(()=>document.getElementById('inp_tx_amount'),2500); if(!amt)return{err:'cash form not shown'};
   const trig=[...document.querySelectorAll('button')].find(b=>/^(Gutschrift|Abbuchung|Zinsen)/i.test((b.innerText||'').trim())&&b.offsetParent); if(trig)fire(trig); await sleep(200);

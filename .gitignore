@@ -11,6 +11,11 @@ extraetf/
 Bestand/
 bestand/
 
+# GenoBroker exports (input data)
+GenoBroker/
+Genobroker/
+genobroker/
+
 # Generated import + helper files
 extraetf-import.csv
 sample-import.csv
@@ -32,3 +37,9 @@ Thumbs.db
 tmp/
 .vscode/
 .idea/
+
+# ENV
+.envrc
+
+# ZED settings folder
+.zed/

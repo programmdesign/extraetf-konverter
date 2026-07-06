@@ -66,6 +66,7 @@
   .badge.trade{background:var(--accent-weak);color:var(--accent)}
   .badge.cash{background:var(--good-bg);color:var(--good)}
   .badge.bestand{background:#f3e8ff;color:#7c3aed}
+  .badge.umsaetze{background:#fef3c7;color:#b45309}
   .badge.unknown{background:var(--bad-bg);color:var(--bad)}
   .file .rm{border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:16px;line-height:1;padding:2px 4px;border-radius:6px}
   .file .rm:hover{color:var(--bad);background:var(--bad-bg)}
